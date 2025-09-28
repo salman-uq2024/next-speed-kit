@@ -1,0 +1,10 @@
+node_modules/
+dist/
+coverage/
+*.zip
+# example app
+example/.next/
+example/node_modules/
+reports/
+playwright/.cache/
+playwright/.local-browsers/
