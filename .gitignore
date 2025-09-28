@@ -5,6 +5,8 @@ coverage/
 # example app
 example/.next/
 example/node_modules/
-reports/
+reports/*
+!reports/.gitkeep
+!reports/summary.md
 playwright/.cache/
 playwright/.local-browsers/

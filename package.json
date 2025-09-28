@@ -1,12 +1,37 @@
 {
   "name": "next-speed-kit",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
+  "bin": "dist/cli/index.js",
   "packageManager": "pnpm@9",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "vitest run",
-    "dev": "node dist/index.js --help",
-    "package": "bash scripts/package.sh"
+    "test": "pnpm build && vitest run",
+    "dev": "pnpm build && node dist/cli/index.js --help",
+    "package": "bash scripts/package.sh",
+    "example:audit": "pnpm build && node dist/scripts/run-example-audit.js"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "chrome-launcher": "^1.1.0",
+    "commander": "^12.1.0",
+    "execa": "^9.4.0",
+    "fast-glob": "^3.3.2",
+    "fs-extra": "^11.2.0",
+    "jscodeshift": "^0.15.1",
+    "lighthouse": "^12.2.0",
+    "ora": "^8.1.0",
+    "webpack-bundle-analyzer": "^4.10.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.2",
+    "vitest": "^2.0.5",
+    "@types/node": "^22.5.4",
+    "@types/jscodeshift": "^0.11.11",
+    "@types/fs-extra": "^11.0.4",
+    "playwright": "^1.47.0",
+    "eslint": "^9.10.0",
+    "prettier": "^3.3.3"
   }
 }
