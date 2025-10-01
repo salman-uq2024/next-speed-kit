@@ -6,6 +6,7 @@ import { runLighthouseAudit, type AuditFormFactor } from '../../audit/index.js';
 import { resolveFromCwd } from '../../lib/fs.js';
 import { formatTimestamp } from '../../lib/time.js';
 import { logger } from '../../lib/logger.js';
+import { checkCliRateLimit } from '../../lib/rate-limit.js';
 
 interface AuditCliOptions {
   tag?: string;
@@ -13,6 +14,7 @@ interface AuditCliOptions {
   desktop?: boolean;
   onlyDesktop?: boolean;
   onlyMobile?: boolean;
+  demo?: boolean;
 }
 
 export const registerAuditCommand = (program: Command) => {
@@ -25,24 +27,43 @@ export const registerAuditCommand = (program: Command) => {
     .option('--desktop', 'Include a desktop run in addition to mobile')
     .option('--only-desktop', 'Run only the desktop profile')
     .option('--only-mobile', 'Run only the mobile profile')
+    .option('--demo', 'Enable demo mode', false)
     .action(async (urls: string[], cliOptions: AuditCliOptions) => {
+      const isDemo = cliOptions.demo || process.env.DEMO_MODE === '1';
+      if (isDemo) {
+        logger.info('Demo mode enabled: using mocks and enforcing rate limits');
+        if (!process.env.MOCK_LIGHTHOUSE) {
+          process.env.MOCK_LIGHTHOUSE = '1';
+        }
+        // Skip private features if API_BASE absent
+        if (!process.env.API_BASE) {
+          logger.info('Demo mode: skipping private API features');
+        }
+      }
+    
+      if (!checkCliRateLimit()) {
+        logger.error('Rate limit exceeded for CLI audit command');
+        process.exitCode = 1;
+        return;
+      }
+    
       if (!Array.isArray(urls) || urls.length === 0) {
         logger.error('Please provide at least one URL to audit.');
         process.exitCode = 1;
         return;
       }
-
+    
       const timestamp = formatTimestamp();
       const formFactors = resolveFormFactors(cliOptions);
       const outputDir = resolveFromCwd(cliOptions.outputDir ?? 'reports');
       const tag = cliOptions.tag;
-
+    
       logger.info(
         `Starting Lighthouse audit for ${urls.length} URL${urls.length === 1 ? '' : 's'} (${formFactors.join(
           ', '
         )})`
       );
-
+    
       const results = [] as Awaited<ReturnType<typeof runLighthouseAudit>>[];
 
       for (const url of urls) {

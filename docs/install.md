@@ -2,28 +2,42 @@
 
 ## Prerequisites
 
-- Node.js 18+ (matches the minimum supported by Next.js 14).
-- pnpm 9 (project scripts assume pnpm, but npm/yarn can work with manual tweaks).
-- Google Chrome or Chromium for Lighthouse audits.
+- Node.js 20+ (install via nvm for easy version management: `curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash`, then `nvm install 20`).
+- pnpm 9+ (install via `npm install -g pnpm@9` or use corepack: `corepack enable`).
+- Google Chrome or Chromium for Lighthouse audits (install via package manager or Puppeteer).
 
-## Install the toolkit
+## Install Steps
 
-```bash
-pnpm install
-```
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-org/next-speed-kit.git
+   cd next-speed-kit
+   ```
 
-This installs the CLI dependencies under the project root.
+2. Install root dependencies:
+   ```bash
+   pnpm install
+   ```
 
-## Install the example app (optional)
+3. (Optional) Install example app dependencies:
+   ```bash
+   cd example
+   pnpm install
+   cd ..
+   ```
 
-```bash
-cd example
-pnpm install
-```
+4. Build the toolkit:
+   ```bash
+   pnpm build
+   ```
 
-The example is kept separate so you can skip it when using the toolkit on an existing project.
+## Common Issues
 
-## Build outputs
+- **pnpm version mismatch**: Ensure pnpm 9+ is installed globally. Run `pnpm --version` to check. If using npm/yarn, manual tweaks may be needed for workspace scripts.
+- **Node version incompatibility**: Verify Node 20+ with `node --version`. Use nvm to switch versions if needed.
+- **Frozen lockfile in CI**: Use `pnpm install --frozen-lockfile` in CI to ensure reproducible installs without updating lockfiles.
+
+## Build Outputs
 
 Compile the TypeScript sources before using the CLI or scripts:
 

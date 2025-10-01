@@ -5,6 +5,7 @@ import { CODEMODS, getCodemod } from '../../codemods/index.js';
 import { runCodemod, formatFileRelative } from '../../codemods/runner.js';
 import { resolveFromCwd } from '../../lib/fs.js';
 import { logger } from '../../lib/logger.js';
+import { checkCliRateLimit } from '../../lib/rate-limit.js';
 
 const collectTransforms = (value: string, previous: string[]): string[] => {
   if (previous.includes(value)) {
@@ -24,8 +25,23 @@ export const registerCodemodsCommand = (program: Command) => {
     .option('--dry-run', 'Preview the changes without writing files')
     .option('--apply', 'Apply changes to disk (overrides --dry-run)')
     .action(async (options) => {
+      const isDemo = options.demo || process.env.DEMO_MODE === '1';
+      if (isDemo) {
+        logger.info('Demo mode enabled: enforcing rate limits');
+        // Skip private features if API_BASE absent
+        if (!process.env.API_BASE) {
+          logger.info('Demo mode: skipping private API features');
+        }
+      }
+    
+      if (!checkCliRateLimit()) {
+        logger.error('Rate limit exceeded for CLI codemods command');
+        process.exitCode = 1;
+        return;
+      }
+    
       const targetDir = resolveFromCwd(options.target ?? process.cwd());
-
+    
       if (options.list) {
         logger.info('Available codemods:');
         CODEMODS.forEach((mod) => {
@@ -33,7 +49,7 @@ export const registerCodemodsCommand = (program: Command) => {
         });
         return;
       }
-
+    
       const transforms: string[] = options.transform ?? [];
       const selected = transforms.length
         ? transforms.map((name) => {
@@ -44,15 +60,15 @@ export const registerCodemodsCommand = (program: Command) => {
             return mod;
           })
         : CODEMODS;
-
+    
       const dryRun = determineDryRun(options);
-
+    
       logger.info(
         `${dryRun ? 'Previewing' : 'Applying'} ${selected.length} codemod${
           selected.length === 1 ? '' : 's'
         } in ${chalk.green(targetDir)}`
       );
-
+    
       const aggregatedChanged: string[] = [];
       const aggregatedErrors: Array<{ file: string; error: Error; codemod: string }> = [];
 

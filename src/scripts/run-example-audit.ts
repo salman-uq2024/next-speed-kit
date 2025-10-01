@@ -7,6 +7,9 @@ import { logger } from '../lib/logger.js';
 import { formatTimestamp } from '../lib/time.js';
 import { updateSummaryMarkdown } from '../reporting/summary.js';
 
+const isDemoMode = process.env.DEMO_MODE === '1';
+const demoFlag = isDemoMode ? '--demo' : '';
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '..', '..');
 const exampleDir = path.join(rootDir, 'example');
@@ -40,7 +43,7 @@ const run = async () => {
   await runAuditWithServer(beforeTag);
 
   logger.info('Applying codemods to the example project');
-  await execa('node', [cliEntrypoint, 'codemods', '--target', exampleDir, '--apply'], {
+  await execa('node', [cliEntrypoint, 'codemods', '--target', exampleDir, '--apply', demoFlag], {
     cwd: rootDir,
     stdio: 'inherit',
   });
@@ -80,6 +83,7 @@ const runAuditWithServer = async (tag: string) => {
         '--output-dir',
         reportsDir,
         '--desktop',
+        demoFlag,
       ],
       { cwd: rootDir, stdio: 'inherit' }
     );

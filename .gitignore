@@ -10,3 +10,10 @@ reports/*
 !reports/summary.md
 playwright/.cache/
 playwright/.local-browsers/
+
+.next/
+.turbo/
+.vercel/
+.pnpm-store/
+.env.local
+.env.*.local

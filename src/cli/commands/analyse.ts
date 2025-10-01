@@ -7,6 +7,7 @@ import { analyseNextBundle, renderBundleSummary } from '../../analyse/index.js';
 import { resolveFromCwd, fs } from '../../lib/fs.js';
 import { logger } from '../../lib/logger.js';
 import { formatTimestamp } from '../../lib/time.js';
+import { checkCliRateLimit } from '../../lib/rate-limit.js';
 
 interface AnalyseCliOptions {
   target?: string;
@@ -14,6 +15,7 @@ interface AnalyseCliOptions {
   buildCmd?: string;
   outputJson?: string;
   limit?: string;
+  demo?: boolean;
 }
 
 export const registerAnalyseCommand = (program: Command) => {
@@ -25,16 +27,32 @@ export const registerAnalyseCommand = (program: Command) => {
     .option('--build-cmd <cmd>', 'Custom build command to run when --build is passed')
     .option('--output-json <file>', 'Optional path to write the JSON summary')
     .option('--limit <n>', 'Number of rows to display for top assets (default 8)')
+    .option('--demo', 'Enable demo mode', false)
     .action(async (options: AnalyseCliOptions) => {
+      const isDemo = options.demo || process.env.DEMO_MODE === '1';
+      if (isDemo) {
+        logger.info('Demo mode enabled: enforcing rate limits');
+        // Skip private features if API_BASE absent
+        if (!process.env.API_BASE) {
+          logger.info('Demo mode: skipping private API features');
+        }
+      }
+    
+      if (!checkCliRateLimit()) {
+        logger.error('Rate limit exceeded for CLI analyse command');
+        process.exitCode = 1;
+        return;
+      }
+    
       const targetDir = resolveFromCwd(options.target ?? process.cwd());
       const limit = options.limit ? Number.parseInt(options.limit, 10) : 8;
-
+    
       if (Number.isNaN(limit) || limit <= 0) {
         logger.error('--limit must be a positive integer');
         process.exitCode = 1;
         return;
       }
-
+    
       if (options.build) {
         const spinner = ora('Running build before analysis').start();
         try {
@@ -48,24 +66,24 @@ export const registerAnalyseCommand = (program: Command) => {
           return;
         }
       }
-
+    
       try {
         const analysis = await analyseNextBundle({ projectDir: targetDir, limit });
         const readable = renderBundleSummary(analysis.summary);
-
+    
         logger.info('\n' + readable);
-
+    
         if (options.outputJson) {
           const outputPath = path.isAbsolute(options.outputJson)
             ? options.outputJson
             : path.join(targetDir, options.outputJson.replace('{timestamp}', formatTimestamp()));
-
+    
           const payload = {
             generatedAt: new Date().toISOString(),
             summary: analysis.summary,
             assets: analysis.assets,
           };
-
+    
           await fs.ensureDir(path.dirname(outputPath));
           await fs.writeJson(outputPath, payload, { spaces: 2 });
           logger.success(`Wrote JSON summary to ${chalk.gray(outputPath)}`);

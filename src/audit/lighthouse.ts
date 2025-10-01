@@ -1,10 +1,44 @@
 import path from 'node:path';
+import { readFile } from 'node:fs/promises';
 import { URL } from 'node:url';
 import { launch, type LaunchedChrome } from 'chrome-launcher';
 import lighthouse from 'lighthouse';
 import type { Config, Flags as LighthouseFlags, RunnerResult } from 'lighthouse';
 import { ensureDir, fs } from '../lib/fs.js';
 import type { AuditMetrics, LighthouseRunOptions, LighthouseRunResult } from './types.js';
+
+const isMockMode = (): boolean => {
+  return process.env.DEMO_MODE === '1' || process.env.MOCK_LIGHTHOUSE === '1' || process.env.CI === '1';
+};
+
+const getMockFixturePath = (options: LighthouseRunOptions): string => {
+  const basePath = path.join(process.cwd(), 'tests', 'fixtures', 'reports');
+  let filename: string;
+  if (options.tag?.includes('before')) {
+    filename = 'lh-20240101-1200-example-before-localhost-mobile.json';
+  } else {
+    filename = 'lh-20240101-1210-example-after-localhost-mobile.json';
+  }
+  return path.join(basePath, filename);
+};
+
+const generateMockHtml = (url: string, lhr: any): string => {
+  const score = lhr.categories?.performance?.score ?? 0;
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Mock Lighthouse Report - Demo Mode</title>
+  <style>body { font-family: system-ui; padding: 20px; }</style>
+</head>
+<body>
+  <h1>Demo Mode: Mock Lighthouse Report</h1>
+  <p><strong>URL:</strong> ${url}</p>
+  <p><strong>Performance Score:</strong> ${(score * 100).toFixed(0)}</p>
+  <p>This is a mock report generated in demo mode. No real Lighthouse run was performed.</p>
+</body>
+</html>`;
+};
 
 export const runLighthouseAudit = async (
   options: LighthouseRunOptions
@@ -15,6 +49,58 @@ export const runLighthouseAudit = async (
   const jsonPath = path.join(outputDir, `${baseName}.json`);
 
   await ensureDir(outputDir);
+
+  if (isMockMode()) {
+    console.log('Demo mode: using mock Lighthouse results');
+    let chrome: LaunchedChrome | undefined;
+
+    try {
+      const mockPath = getMockFixturePath(options);
+      const mockJson = await readFile(mockPath, 'utf8');
+      const lhr = JSON.parse(mockJson);
+
+      const htmlReport = generateMockHtml(url, lhr);
+      const jsonReport = JSON.stringify(lhr, null, 2);
+
+      await fs.writeFile(htmlPath, htmlReport, 'utf8');
+      await fs.writeFile(jsonPath, jsonReport, 'utf8');
+
+      const metrics = extractMetrics(lhr);
+
+      return {
+        url,
+        formFactor,
+        htmlPath,
+        jsonPath,
+        metrics,
+        success: true,
+      };
+    } catch (error) {
+      const normalised = error instanceof Error ? error : new Error(String(error));
+      await writeFailureReports({
+        htmlPath,
+        jsonPath,
+        url,
+        formFactor,
+        timestamp,
+        error: `Mock load failed: ${normalised.message}`,
+      });
+
+      return {
+        url,
+        formFactor,
+        htmlPath,
+        jsonPath,
+        metrics: null,
+        success: false,
+        error: normalised.message,
+      };
+    } finally {
+      if (chrome) {
+        await chrome.kill();
+      }
+    }
+  }
 
   let chrome: LaunchedChrome | undefined;
 

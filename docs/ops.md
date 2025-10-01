@@ -49,3 +49,47 @@
 - Add new codemods under `src/codemods/transforms/` and register them in `src/codemods/index.ts`.
 - Bundle analysis currently scans emitted assets; plug in Webpack stats or Lighthouse JSON if you need deeper coverage.
 - For environment-specific audits (mobile vs. desktop, throttling, etc.) adjust the options passed to `runLighthouseAudit` in `src/audit/lighthouse.ts`.
+
+## Releasing
+
+To release a new version:
+
+1. Bump the version using pnpm:
+   ```bash
+   pnpm version patch  # or minor, major
+   ```
+
+2. Create and push a git tag:
+   ```bash
+   git tag vX.Y.Z
+   git push origin main
+   git push origin --tags
+   ```
+
+This triggers CI to build, test, and package the release.
+
+## Packaging
+
+The `pnpm package` script creates a deterministic ZIP archive at `dist/next-speed-kit-YYYY-MM-DD.zip`:
+
+- Uses UTC date for the filename.
+- Ensures stable file order for reproducible archives.
+- Includes sources, docs, and the compiled CLI (`dist/`).
+
+Run it manually or in CI for distribution.
+
+## Report Artifacts
+
+- **CI Uploads**: The ZIP from `pnpm package` is uploaded as a release artifact in CI workflows.
+- **Lighthouse Reports**: Generated HTML/JSON files in `reports/` for audit evidence. Use `reports/summary.md` for aggregated score deltas and insights.
+
+Store these in your evidence repository or artifact store for stakeholder reviews.
+
+## Rotate Secrets
+
+- No secrets are stored in the repo (e.g., avoid committing API keys).
+- If using a private `API_BASE`:
+  1. Update the environment variable in your deployment platform (e.g., Vercel env vars).
+  2. Redeploy the application.
+- For local development, use a `.env.local` file (gitignored) and load via `process.env`.
+- In CI, inject secrets via platform-specific mechanisms (e.g., GitHub Secrets).

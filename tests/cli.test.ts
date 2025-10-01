@@ -18,4 +18,24 @@ describe('next-speed-kit CLI', () => {
     expect(result.stdout).toContain('audit');
     expect(result.stdout).toContain('analyse');
   });
+
+  it('registers audit command with correct configuration', async () => {
+    const { Command } = await import('commander');
+    const { registerAuditCommand } = await import('../src/cli/commands/audit.js');
+
+    const program = new Command();
+    registerAuditCommand(program);
+
+    const auditCmd = program.commands.find((cmd) => cmd.name() === 'audit');
+    expect(auditCmd).toBeDefined();
+    expect(auditCmd?.description()).toBe('Run Lighthouse against a URL and capture reports');
+    expect(auditCmd?.arguments.length).toBe(1);
+
+    const options = auditCmd?.options || [];
+    expect(options.some((opt) => opt.long === '--tag')).toBe(true);
+    expect(options.some((opt) => opt.long === '--output-dir')).toBe(true);
+    expect(options.some((opt) => opt.long === '--desktop')).toBe(true);
+    expect(options.some((opt) => opt.long === '--only-desktop')).toBe(true);
+    expect(options.some((opt) => opt.long === '--only-mobile')).toBe(true);
+  });
 });

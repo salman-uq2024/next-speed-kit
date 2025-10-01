@@ -12,7 +12,8 @@ const program = new Command();
 program
   .name('next-speed-kit')
   .description('Toolkit for speeding up Next.js applications and tracking improvements')
-  .version(getPackageVersion());
+  .version(getPackageVersion())
+  .option('--demo', 'Enable demo mode with mocks and rate limits');
 
 registerCodemodsCommand(program);
 registerAuditCommand(program);
