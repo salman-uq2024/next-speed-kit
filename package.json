@@ -1,7 +1,7 @@
 {
   "name": "next-speed-kit",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
   "type": "module",
   "bin": "dist/cli/index.js",
   "packageManager": "pnpm@9",
@@ -23,15 +23,13 @@
     "fs-extra": "^11.2.0",
     "jscodeshift": "^0.15.1",
     "lighthouse": "^12.2.0",
-    "ora": "^8.1.0",
-    "webpack-bundle-analyzer": "^4.10.2"
+    "ora": "^8.1.0"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
     "@types/jscodeshift": "^0.11.11",
     "@types/node": "^22.5.4",
     "eslint": "^9.10.0",
-    "playwright": "^1.47.0",
     "prettier": "^3.3.3",
     "tsx": "^4.20.6",
     "typescript": "^5.6.2",
