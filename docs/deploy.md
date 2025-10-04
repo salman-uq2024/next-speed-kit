@@ -33,11 +33,11 @@ Follow these steps to deploy using the Vercel CLI or dashboard.
    In the Vercel dashboard or CLI, set the following:
    - **Build Command**:
      ```
-     pnpm install --frozen-lockfile && pnpm -w build && pnpm --filter ./example build
+     pnpm install --frozen-lockfile && pnpm -w build && pnpm --filter next-speed-kit-example build
      ```
      - `pnpm install --frozen-lockfile`: Ensures reproducible dependency installation (ideal for CI/CD).
      - `pnpm -w build`: Builds the root toolkit, including the CLI and shared libraries.
-     - `pnpm --filter ./example build`: Builds the Next.js example app.
+     - `pnpm --filter next-speed-kit-example build`: Builds the Next.js example app.
    - **Output Directory**: `.next` (default for Next.js projects).
    - **Framework Preset**: Next.js (automatically detected).
 
@@ -67,7 +67,7 @@ For deployments without Git-based CI/CD:
 
 1. Build the project locally:
    ```bash
-   pnpm -w build && pnpm --filter ./example build
+   pnpm -w build && pnpm --filter next-speed-kit-example build
    ```
 
 2. Deploy the built app:
@@ -85,7 +85,7 @@ For deployments without Git-based CI/CD:
   node dist/cli/index.js audit https://your-project.vercel.app --tag vercel-deploy
   ```
   This generates reports in the `reports/` directory. See [ops.md](./ops.md) for audit details.
-- For custom domains or advanced configurations, modify `vercel.json` in the `example/` directory and redeploy.
+- For custom domains or advanced configurations, add an `example/vercel.json` file tailored to your needs and redeploy.
 
 ## Troubleshooting
 

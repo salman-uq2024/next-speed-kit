@@ -35,4 +35,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Ensured idempotency in codemods to allow safe re-runs.
 - Resolved Chrome path detection for headless audits in CI environments.
 
-[1.0.0]: https://github.com/your-org/next-speed-kit/compare/v0.1.0...v1.0.0
+[1.0.0]: https://github.com/salman-uq2024/next-speed-kit/compare/v0.1.0...v1.0.0

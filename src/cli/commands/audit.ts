@@ -4,7 +4,7 @@ import ora from 'ora';
 import chalk from 'chalk';
 import { runLighthouseAudit, type AuditFormFactor } from '../../audit/index.js';
 import { resolveFromCwd } from '../../lib/fs.js';
-import { formatTimestamp } from '../../lib/time';
+import { formatTimestamp } from '../../lib/time.js';
 import { logger } from '../../lib/logger.js';
 import { checkCliRateLimit } from '../../lib/rate-limit.js';
 

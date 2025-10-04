@@ -37,13 +37,15 @@ export const runCodemod = async (
   const unchangedFiles: string[] = [];
   const errors: Array<{ file: string; error: Error }> = [];
 
+  const j = jscodeshift.withParser('tsx');
+
   for (const filePath of matches) {
     try {
       const source = await fs.readFile(filePath, 'utf8');
 
       const result = codemod.transform(
         { source, path: filePath },
-        { j: jscodeshift, jscodeshift, stats: () => {}, report: () => {} },
+        { j, jscodeshift: j, stats: () => {}, report: () => {} },
         { printOptions: PRINT_OPTIONS }
       );
 

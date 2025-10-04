@@ -1,12 +1,8 @@
 import Head from 'next/head';
 import Image from 'next/image';
-import dynamic from 'next/dynamic';
-
-const ReactMarkdown = dynamic(() => import('react-markdown'), {
-  ssr: false
-});
-
+import ReactMarkdown from 'react-markdown';
 import { useMemo } from 'react';
+import StreamingHint from '../sections/StreamingHint';
 
 const markdown = `## Why this demo can get sluggish
 
@@ -18,19 +14,13 @@ This page intentionally ships a few anti-patterns so that \`next-speed-kit\` has
 
 Run the provided scripts or CLI commands to see how the toolkit nudges these issues in the right direction.`;
 
-const ClientOnlySample = dynamic(() => import('../sections/StreamingHint'), {
-  ssr: false,
-  loading: () => <p>Loading interactive demo…</p>,
-});
-
 export default function Home() {
   const markdownContent = useMemo(() => markdown, []);
 
   return (
     <>
-      <Head><link rel='preconnect' href='https://fonts.gstatic.com' crossOrigin='anonymous' />
+      <Head>
         <title>next-speed-kit demo</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
           rel="stylesheet"
@@ -44,7 +34,7 @@ export default function Home() {
         </p>
 
         <section>
-          <Image src="/hero.png" alt="Speed graph" priority width={640} height={360} />
+          <Image src="/hero.png" alt="Speed graph" priority />
         </section>
 
         <section>
@@ -52,7 +42,7 @@ export default function Home() {
         </section>
 
         <section>
-          <ClientOnlySample />
+          <StreamingHint />
         </section>
       </main>
     </>

@@ -13,7 +13,10 @@
     "allowJs": true,
     "noEmit": true,
     "incremental": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "rootDir": "."
   },
   "include": [
     "next-env.d.ts",

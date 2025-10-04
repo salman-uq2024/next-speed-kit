@@ -15,7 +15,7 @@ Follow these timed steps. Each includes narration, actions, and visuals.
 
 1. **Introduction (0-5s)**:
    - **Narration**: "Meet next-speed-kit: a powerful CLI that detects and resolves common Next.js performance bottlenecks, while generating clear reports on the improvements."
-   - **Visuals/Actions**: Show the project logo or README.md from the [repository](https://github.com/your-org/next-speed-kit). Fade in the terminal.
+   - **Visuals/Actions**: Show the project logo or README.md from the [repository](https://github.com/salman-uq2024/next-speed-kit). Fade in the terminal.
    - **Tip**: Smile and speak directly to the camera if possible.
 
 2. **CLI Help Overview (5-15s)**:

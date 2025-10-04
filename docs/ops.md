@@ -39,7 +39,7 @@ To minimize risks when applying optimizations:
    - Store JSON/HTML outputs in version control or an artifact store for evidence.
 
 6. **Update the Summary Report**:
-   - Use the built-in helper: Pass tags to `updateSummaryMarkdown` in [src/reporting/summary.ts](https://github.com/your-org/next-speed-kit/blob/main/src/reporting/summary.ts).
+   - Use the built-in helper: Pass tags to `updateSummaryMarkdown` in [src/reporting/summary.ts](https://github.com/salman-uq2024/next-speed-kit/blob/main/src/reporting/summary.ts).
    - Or reference the `example:audit` script for automation examples. This aggregates before/after Lighthouse scores.
 
 ## Chrome / Lighthouse Tips
@@ -49,7 +49,7 @@ Lighthouse audits require Chrome/Chromium:
 - **Installation**: Ensure Chrome or Chromium is installed and accessible. On macOS: `brew install --cask google-chrome`. On Linux: `apt install chromium-browser`.
 - **Headless Mode**: The CLI uses `chrome-launcher` for headless execution. Set `CHROME_PATH` if the binary is non-standard (e.g., `export CHROME_PATH=/usr/bin/chromium`).
 - **CI/Containers**: Install `chromium` via your package manager. If unavailable, the CLI generates stub reports to flag issues in automation.
-- **Throttling and Flags**: Customize via audit options in [src/audit/lighthouse.ts](https://github.com/your-org/next-speed-kit/blob/main/src/audit/lighthouse.ts), e.g., mobile vs. desktop emulation.
+- **Throttling and Flags**: Customize via audit options in [src/audit/lighthouse.ts](https://github.com/salman-uq2024/next-speed-kit/blob/main/src/audit/lighthouse.ts), e.g., mobile vs. desktop emulation.
 
 ## Rolling Back Codemods
 
@@ -94,9 +94,9 @@ Add steps for `analyse` or `audit` on PRs to enforce performance gates.
 
 Customize for your needs:
 
-- **New Codemods**: Add transforms in `src/codemods/transforms/` and register in [src/codemods/index.ts](https://github.com/your-org/next-speed-kit/blob/main/src/codemods/index.ts). Follow patterns like `next-image-dimensions`.
+- **New Codemods**: Add transforms in `src/codemods/transforms/` and register in [src/codemods/index.ts](https://github.com/salman-uq2024/next-speed-kit/blob/main/src/codemods/index.ts). Follow patterns like `next-image-dimensions`.
 - **Bundle Analysis**: Enhance scanning of emitted assets; integrate Webpack stats for deeper insights.
-- **Audit Customizations**: Modify `runLighthouseAudit` in [src/audit/lighthouse.ts](https://github.com/your-org/next-speed-kit/blob/main/src/audit/lighthouse.ts) for environment-specific options (e.g., throttling, device emulation).
+- **Audit Customizations**: Modify `runLighthouseAudit` in [src/audit/lighthouse.ts](https://github.com/salman-uq2024/next-speed-kit/blob/main/src/audit/lighthouse.ts) for environment-specific options (e.g., throttling, device emulation).
 
 See [CONTRIBUTING.md](../CONTRIBUTING.md) for development setup.
 

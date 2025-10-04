@@ -40,10 +40,9 @@ Before installing, ensure you have the following:
 1. **Clone the Repository**:
    Clone the project from GitHub and navigate into the directory:
    ```bash
-   git clone https://github.com/your-org/next-speed-kit.git
+   git clone https://github.com/salman-uq2024/next-speed-kit.git
    cd next-speed-kit
    ```
-   *Note*: Replace `your-org` with the actual GitHub organization or username if this is a forked/private repo.
 
 2. **Set Node Version**:
    Use nvm to switch to the project-specified Node version:
@@ -53,7 +52,7 @@ Before installing, ensure you have the following:
    This ensures compatibility with the [.nvmrc](/.nvmrc) file.
 
 3. **Install Dependencies**:
-   Install all root-level dependencies, including the example app:
+   Install all workspace dependencies (root package + example app):
    ```bash
    pnpm install
    ```
@@ -66,14 +65,12 @@ Before installing, ensure you have the following:
    ```
    The output will be in the `dist/` directory. This step is required before running the CLI.
 
-5. **(Optional) Set Up the Example App**:
-   If you want to explore the demo Next.js app:
+5. **(Optional) Run the Example App**:
+   The example app is part of the workspace, so dependencies are already available. Start the dev server from the repository root:
    ```bash
-   cd example
-   pnpm install
-   pnpm dev
+   pnpm --filter next-speed-kit-example dev
    ```
-   Visit `http://localhost:3000` to see the example in action. For more details, see the [README.md](../README.md#example-app).
+   Visit `http://localhost:3000` to see the baseline in action. For more details, see the [Example README](../example/README.md).
 
 ## Verifying Installation
 

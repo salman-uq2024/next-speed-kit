@@ -4,7 +4,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { execa } from 'execa';
 import { fs } from '../lib/fs.js';
 import { logger } from '../lib/logger.js';
-import { formatTimestamp } from '../lib/time';
+import { formatTimestamp } from '../lib/time.js';
 import { updateSummaryMarkdown } from '../reporting/summary.js';
 
 const isDemoMode = process.env.DEMO_MODE === '1';
@@ -43,7 +43,12 @@ const run = async () => {
   await runAuditWithServer(beforeTag);
 
   logger.info('Applying codemods to the example project');
-  await execa('node', [cliEntrypoint, 'codemods', '--target', exampleDir, '--apply', demoFlag], {
+  const codemodArgs = [cliEntrypoint, 'codemods', '--target', exampleDir, '--apply'];
+  if (demoFlag) {
+    codemodArgs.push(demoFlag);
+  }
+
+  await execa('node', codemodArgs, {
     cwd: rootDir,
     stdio: 'inherit',
   });
@@ -62,31 +67,33 @@ const run = async () => {
 
   logger.success(`Updated summary at ${outputPath}`);
   logger.success('Finished running before/after audits.');
+  logger.info('Tip: run `git checkout -- example` to restore the baseline demo after reviewing the changes.');
 };
 
 const runAuditWithServer = async (tag: string) => {
-  const server = execa('pnpm', ['run', 'start', '--', '-p', '3001'], {
+  const server = execa('pnpm', ['exec', 'next', 'start', '--port', '3001'], {
     cwd: exampleDir,
     stdio: 'inherit',
   });
 
   try {
     await waitForServer();
-    await execa(
-      'node',
-      [
-        cliEntrypoint,
-        'audit',
-        exampleUrl,
-        '--tag',
-        tag,
-        '--output-dir',
-        reportsDir,
-        '--desktop',
-        demoFlag,
-      ],
-      { cwd: rootDir, stdio: 'inherit' }
-    );
+    const auditArgs = [
+      cliEntrypoint,
+      'audit',
+      exampleUrl,
+      '--tag',
+      tag,
+      '--output-dir',
+      reportsDir,
+      '--desktop',
+    ];
+
+    if (demoFlag) {
+      auditArgs.push(demoFlag);
+    }
+
+    await execa('node', auditArgs, { cwd: rootDir, stdio: 'inherit' });
   } finally {
     server.kill('SIGINT');
     await server.catch(() => undefined);

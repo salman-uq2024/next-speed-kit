@@ -1,6 +1,6 @@
 # Next.js Speed Kit Example App
 
-This example demonstrates how to use the Next.js Speed Kit CLI to audit and optimize a simple Next.js application. The app is a basic marketing homepage with a hero image, markdown content, and a streaming hint component. It intentionally includes some performance issues to showcase the CLI's capabilities.
+This example demonstrates how to use the Next.js Speed Kit CLI to audit and optimize a simple Next.js application. The app is a basic marketing homepage with a hero image, markdown content, and a streaming hint component. It intentionally includes performance issues—unsized images, heavy markdown on the critical path, and missing font preconnect hints—to showcase the CLI's codemods.
 
 ## Setup and Run
 
@@ -31,9 +31,9 @@ The initial app has several performance and best practices issues identified by 
 - **Accessibility**: Missing alt text optimizations, no lang attribute.
 - **Other**: No preconnect hints for fonts, unminified JS/CSS in dev mode.
 
-Run the audit yourself:
+Run the audit yourself from the repository root (after `pnpm build`):
 ```
-pnpm next-speed-kit audit --url http://localhost:3000 --formFactor mobile
+node dist/cli/index.js audit http://localhost:3000 --tag example-local
 ```
 This generates a report (e.g., `reports/lh-20251003-080127-example-before-localhost-mobile.json`) showing a performance score around 0.52.
 
@@ -43,32 +43,28 @@ The CLI provides codemods to fix common issues. Run them to optimize:
 
 1. **Fix Image Sizes** (addresses unsized images causing CLS):
    ```
-   pnpm next-speed-kit codemods --transforms next-image-width-height
+   node dist/cli/index.js codemods --target example --transform next-image-dimensions --apply
    ```
    - Adds `width` and `height` to `<Image>` components in `pages/index.tsx`.
    - Expected gain: Reduces layout shifts, improves LCP by ~20-30%.
 
 2. **Add Preconnect Hints** (for fonts):
    ```
-   pnpm next-speed-kit codemods --transforms font-preconnect
+   node dist/cli/index.js codemods --target example --transform head-font-preconnect --apply
    ```
    - Adds `<link rel="preconnect">` to `pages/_document.tsx` for Google Fonts.
    - Expected gain: Faster font loading, improves FCP by ~100ms.
 
-3. **Dynamic Imports for Heavy Components** (if needed, but minimal here; add a heavy import to trigger):
-   - Edit `pages/index.tsx` to dynamically import `sections/StreamingHint.tsx`:
-     ```tsx
-     const StreamingHint = dynamic(() => import('../sections/StreamingHint'), { ssr: false });
-     ```
-   - Run codemod:
-     ```
-     pnpm next-speed-kit codemods --transforms dynamic-imports-heavy
-     ```
+3. **Dynamic Imports for Heavy Components**:
+   ```
+   node dist/cli/index.js codemods --target example --transform dynamic-heavy-modules --apply
+   ```
+   - Wraps `react-markdown` and similar modules in `next/dynamic` with `ssr: false`.
    - Expected gain: Reduces initial bundle size, lowers TBT by ~200ms.
 
 After applying codemods, re-run the audit:
 ```
-pnpm next-speed-kit audit --url http://localhost:3000 --formFactor mobile
+node dist/cli/index.js audit http://localhost:3000 --tag example-after
 ```
 Compare reports (before/after JSONs in `reports/`). Expected improvements:
 - Performance score: From ~0.52 to ~0.85+.
@@ -88,9 +84,9 @@ For production builds, run `pnpm build` and audit the built app for further gain
 
 ## Additional Notes
 
-- **Bugs Fixed**: Ensured no TypeScript errors (e.g., type imports), CSS issues resolved via codemods.
-- **Demo Elements**: The hero.png triggers image optimizations; StreamingHint.tsx can be made heavy (e.g., add large data) to demo dynamic imports.
-- **Root Tests**: From project root, `pnpm test` passes without breaks.
+- **Bugs Fixed**: Ensured TypeScript build passes cleanly after codemods.
+- **Demo Elements**: The hero.png triggers image optimizations; markdown rendering showcases dynamic imports post-codemod.
+- **Resetting**: Use `git checkout example` to reset the example to its baseline state after experimenting.
 
 This setup showcases how Next.js Speed Kit automates performance tuning for Next.js apps. Contribute issues/PRs to the repo!
 

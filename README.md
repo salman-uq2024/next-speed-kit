@@ -1,12 +1,11 @@
 # next-speed-kit
 
 🚀 **Toolkit for Profiling and Optimizing Next.js Performance**  
-Ship a CLI, codemods, sample project, and reporting utilities to demonstrate measurable gains with before/after evidence. Boost Lighthouse scores from 60 to 95 on mobile by auto-fixing 5+ common issues like layout shifts and bundle bloat.
+Ship a polished CLI, codemods, sample project, and reporting utilities that demonstrate measurable gains with before/after evidence. Boost Lighthouse scores by auto-fixing common issues like layout shifts and bundle bloat.
 
 [![Node.js](https://img.shields.io/badge/node-%3E=20-green)](https://nodejs.org/)
 [![PNPM](https://img.shields.io/badge/pnpm-9%2B-blue)](https://pnpm.io/)
-[![Tests](https://img.shields.io/badge/tests-passing-brightgreen)](https://github.com/your-org/next-speed-kit/actions)
-[![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)](https://github.com/your-org/next-speed-kit/actions)
+[![CI](https://img.shields.io/github/actions/workflow/status/salman-uq2024/next-speed-kit/ci.yml?label=CI)](https://github.com/salman-uq2024/next-speed-kit/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 ## Features
@@ -22,13 +21,13 @@ Ship a CLI, codemods, sample project, and reporting utilities to demonstrate mea
 - **TypeScript-Friendly**: Fully typed CLI and transforms, compatible with modern Next.js setups.
 - **Demo Mode**: Offline testing with mocks for CI/CD pipelines.
 
-Quantified Benefits: Auto-fixes 5+ common issues, reduces initial bundle size by up to 30%, and improves Core Web Vitals scores significantly.
+Quantified Benefits: Auto-fixes 4 common issues, reduces initial bundle size by up to 30%, and improves Core Web Vitals scores significantly.
 
 ## Quick Start
 
 1. **Clone and Install**:
    ```bash
-   git clone https://github.com/your-org/next-speed-kit.git
+   git clone https://github.com/salman-uq2024/next-speed-kit.git
    cd next-speed-kit
    pnpm install
    ```
@@ -58,28 +57,11 @@ The `/example/` directory contains a sample Next.js app demonstrating real-world
 - **Before**: Baseline Lighthouse score ~60 on mobile (issues: layout shifts, unoptimized images, heavy initial JS).
 - **After**: Apply codemods and re-audit—score jumps to 95+ with reduced LCP/CLS and smaller bundles.
 
-Run `pnpm example:audit` to see diffs in action. The app uses `next.config.js` with `images.unoptimized = true` for audit simplicity.
+Run `pnpm example:audit` to see diffs in action. The script runs Lighthouse in demo mode, applies codemods, and updates `reports/summary.md` with before/after metrics (e.g., performance 60 → 82 on mobile and desktop). The app uses `next.config.js` with `images.unoptimized = true` for audit simplicity.
 
-![Hero Image](example/public/hero.png)
-
-## Screenshots & Demos
-
-- **CLI Output**: 
-  ```
-  [Placeholder: CLI Demo GIF - Add via Loom or screen recording showing audit command and report generation]
-  ```
-  ![CLI Demo](demo.gif) <!-- Note: Record and add later using tools from docs/loom-script.md -->
-
-- **Lighthouse Diffs**: Before/after score comparisons in `reports/`.
-  ```
-  [Placeholder: Screenshot of summary.md with score deltas, e.g., Performance: 60 → 95]
-  ```
-  ![Lighthouse Diff](reports/lighthouse-diff.png) <!-- Note: Generate and add later -->
-
-- **Bundle Analysis**: Human-readable output highlighting hot-spots.
-  ```
-  [Placeholder: Terminal output from 'analyse' command]
-  ```
+> After reviewing the optimized state, restore the baseline with `git checkout -- example` so subsequent demos rerun from the "before" version.
+  
+> 🎬 Record your own walkthrough using the script in `docs/loom-script.md` and embed the assets when ready.
 
 ## Installation
 
@@ -91,7 +73,7 @@ Run `pnpm example:audit` to see diffs in action. The app uses `next.config.js` w
 ### Steps
 1. Clone the repo:
    ```bash
-   git clone https://github.com/your-org/next-speed-kit.git
+   git clone https://github.com/salman-uq2024/next-speed-kit.git
    cd next-speed-kit
    ```
 
@@ -100,9 +82,9 @@ Run `pnpm example:audit` to see diffs in action. The app uses `next.config.js` w
    pnpm install
    ```
 
-3. (Optional) For the example app:
+3. (Optional) For the example app, dependencies are already installed via the workspace. Start the dev server with:
    ```bash
-   cd example && pnpm install && cd ..
+   pnpm --filter next-speed-kit-example dev
    ```
 
 4. Build:
@@ -148,8 +130,8 @@ We welcome contributions! Check [CONTRIBUTING.md](CONTRIBUTING.md) for guideline
 
 ## License
 
-MIT © [Your Name/Org]. See [LICENSE](LICENSE) for details.
+MIT © Salman. See [LICENSE](LICENSE) for details.
 
 ---
 
-⭐ **Star this repo** if it helps your Next.js perf! | 🐛 [Open an Issue](https://github.com/your-org/next-speed-kit/issues) | 📖 [Full Docs](docs/)
+⭐ **Star this repo** if it helps your Next.js perf! | 🐛 [Open an Issue](https://github.com/salman-uq2024/next-speed-kit/issues) | 📖 [Full Docs](docs/)
