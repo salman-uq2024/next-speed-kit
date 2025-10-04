@@ -4,7 +4,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { execa } from 'execa';
 import { fs } from '../lib/fs.js';
 import { logger } from '../lib/logger.js';
-import { formatTimestamp } from '../lib/time.js';
+import { formatTimestamp } from '../lib/time';
 import { updateSummaryMarkdown } from '../reporting/summary.js';
 
 const isDemoMode = process.env.DEMO_MODE === '1';

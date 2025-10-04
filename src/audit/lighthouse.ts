@@ -5,6 +5,7 @@ import { launch, type LaunchedChrome } from 'chrome-launcher';
 import lighthouse from 'lighthouse';
 import type { Config, Flags as LighthouseFlags, RunnerResult } from 'lighthouse';
 import { ensureDir, fs } from '../lib/fs.js';
+import { logger } from '../lib/logger.js';
 import type { AuditMetrics, LighthouseRunOptions, LighthouseRunResult } from './types.js';
 
 const isMockMode = (): boolean => {
@@ -51,7 +52,7 @@ export const runLighthouseAudit = async (
   await ensureDir(outputDir);
 
   if (isMockMode()) {
-    console.log('Demo mode: using mock Lighthouse results');
+    logger.info('Demo mode: using mock Lighthouse results');
     let chrome: LaunchedChrome | undefined;
 
     try {

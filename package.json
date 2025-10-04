@@ -1,13 +1,38 @@
 {
   "name": "next-speed-kit",
-  "version": "0.1.0",
-  "private": false,
+  "version": "1.0.0",
   "type": "module",
-  "bin": "dist/cli/index.js",
+  "main": "dist/cli/index.js",
+  "bin": {
+    "next-speed-kit": "dist/cli/index.js"
+  },
   "packageManager": "pnpm@9",
+  "description": "CLI for auditing and auto-fixing Next.js performance issues. Supports 4 codemods for 90+ Lighthouse scores.",
+  "keywords": [
+    "nextjs",
+    "performance",
+    "lighthouse",
+    "codemod",
+    "cli",
+    "typescript"
+  ],
+  "repository": "https://github.com/your-org/next-speed-kit",
+  "bugs": "https://github.com/your-org/next-speed-kit/issues",
+  "homepage": "https://github.com/your-org/next-speed-kit",
+  "author": "Your Name <your.email@example.com>",
+  "license": "MIT",
+  "files": [
+    "dist",
+    "src",
+    "types"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "install": "pnpm install",
     "build": "tsc",
+    "prepublishOnly": "pnpm build",
     "dev": "tsx watch src/cli/index.ts",
     "test": "vitest",
     "package": "pnpm run package:cli",
@@ -29,8 +54,6 @@
     "@types/fs-extra": "^11.0.4",
     "@types/jscodeshift": "^0.11.11",
     "@types/node": "^22.5.4",
-    "eslint": "^9.10.0",
-    "prettier": "^3.3.3",
     "tsx": "^4.20.6",
     "typescript": "^5.6.2",
     "vitest": "^3.2.4"

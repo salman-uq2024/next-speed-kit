@@ -1,7 +1,29 @@
-tests
-example
-docs
-.github
-reports
-src
-scripts
+# Dependencies
+node_modules/
+
+# Testing
+tests/
+coverage/
+.nyc_output
+
+# Examples and docs
+example/
+docs/
+reports/
+
+# Git and version control
+.git
+.gitignore
+
+# Environment and config
+.env*
+.nvmrc
+.editorconfig
+.gitleaks.toml
+
+# Lockfiles and package managers
+pnpm-lock.yaml
+
+# Build and logs
+*.log
+.DS_Store

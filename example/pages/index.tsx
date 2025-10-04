@@ -1,7 +1,11 @@
 import Head from 'next/head';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
-import ReactMarkdown from 'react-markdown';
+
+const ReactMarkdown = dynamic(() => import('react-markdown'), {
+  ssr: false
+});
+
 import { useMemo } from 'react';
 
 const markdown = `## Why this demo can get sluggish
@@ -24,7 +28,7 @@ export default function Home() {
 
   return (
     <>
-      <Head>
+      <Head><link rel='preconnect' href='https://fonts.gstatic.com' crossOrigin='anonymous' />
         <title>next-speed-kit demo</title>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -40,7 +44,7 @@ export default function Home() {
         </p>
 
         <section>
-          <Image src="/hero.png" alt="Speed graph" priority />
+          <Image src="/hero.png" alt="Speed graph" priority width={640} height={360} />
         </section>
 
         <section>

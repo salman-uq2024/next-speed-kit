@@ -1,6 +1,7 @@
 import path from 'node:path';
 import fg from 'fast-glob';
 import { fs } from '../lib/fs.js';
+import { logger } from '../lib/logger.js';
 import type { AuditMetrics } from '../audit/types.js';
 
 interface SummaryOptions {
@@ -138,7 +139,7 @@ const loadReports = async (reportsDir: string, tag: string): Promise<LoadedRepor
       reports.push({ tag, formFactor, filePath, metrics });
     } catch (error) {
       const err = error instanceof Error ? error : new Error(String(error));
-      console.warn(`Failed to read ${filePath}: ${err.message}`);
+      logger.warn(`Failed to read ${filePath}: ${err.message}`);
     }
   }
 

@@ -1,95 +1,144 @@
-# Operational guide
+# Operational Guide
 
-## Safe usage on real repositories
+This guide covers best practices for using next-speed-kit in production environments, including safe codemod application, auditing, integration, and maintenance. It assumes you've completed the [Installation Guide](./install.md). The toolkit supports 4 codemods targeting common performance issues like layout shifts and bundle bloat.
 
-1. **Work on a clean branch.** Commit or stash pending work before running codemods so you can review the generated diff easily.
-2. **Start with dry-runs.**
-   ```bash
-   node dist/cli/index.js codemods --target /path/to/app --dry-run
-   ```
-   Review the file list before enabling `--apply`.
-3. **Apply codemods selectively.**
-   - Use `--transform` to target a single mod (e.g. `next-image-dimensions`).
-   - Re-run the same codemod as often as needed; they are idempotent on the affected snippets.
-4. **Run bundle analysis after each build.**
-   ```bash
-   node dist/cli/index.js analyse --target /path/to/app --build
-   ```
-   Add `--output-json reports/bundle-{timestamp}.json` to archive the snapshot.
-5. **Automate audits.**
-   - Deploy your app locally or to a staging URL.
-   - Run `audit` with an explicit `--tag` so each run is traceable:
+For a quick demo overview, see the [Loom Script](./loom-script.md).
+
+## Safe Usage on Real Repositories
+
+To minimize risks when applying optimizations:
+
+1. **Work on a Clean Branch**:
+   - Always commit or stash any pending changes before running codemods. This allows easy review of diffs.
+   - Example: `git checkout -b perf-optimizations`.
+
+2. **Start with Dry-Runs**:
+   - Preview changes without modifying files:
+     ```bash
+     node dist/cli/index.js codemods --target /path/to/your/app --dry-run
+     ```
+   - Review the output file list and suggested transforms before proceeding.
+
+3. **Apply Codemods Selectively**:
+   - Target specific transforms: `--transform next-image-dimensions` (one of the 4 available: image dimensions, dynamic imports, font preconnect, cache headers).
+   - Codemods are idempotent—re-run them safely on the same files without side effects.
+
+4. **Run Bundle Analysis Post-Build**:
+   - Analyze after each optimization:
+     ```bash
+     node dist/cli/index.js analyse --target /path/to/your/app --build
+     ```
+   - Archive results: Add `--output-json reports/bundle-{timestamp}.json` for tracking improvements over time.
+
+5. **Automate Audits**:
+   - Deploy to a staging URL (see [Deployment Guide](./deploy.md)).
+   - Run traceable audits:
      ```bash
      node dist/cli/index.js audit https://staging.example.com --desktop --tag staged-release
      ```
-   - Store the generated JSON/HTML artifacts under version control or your preferred evidence store.
-6. **Update the summary.** If you rely on the provided summary helper, pass your tags to `updateSummaryMarkdown` (see `src/reporting/summary.ts`) or reuse the `example:audit` script as a reference implementation.
+   - Store JSON/HTML outputs in version control or an artifact store for evidence.
 
-## Chrome / Lighthouse tips
+6. **Update the Summary Report**:
+   - Use the built-in helper: Pass tags to `updateSummaryMarkdown` in [src/reporting/summary.ts](https://github.com/your-org/next-speed-kit/blob/main/src/reporting/summary.ts).
+   - Or reference the `example:audit` script for automation examples. This aggregates before/after Lighthouse scores.
 
-- Install Chrome/Chromium on the machine executing `audit`. The CLI launches it headlessly via `chrome-launcher`.
-- Inside CI or containers, install `chromium` (apt) or use `google-chrome --headless`. If the binary lives in a non-standard path, set `CHROME_PATH`.
-- If Chrome is unavailable, the CLI writes stub reports capturing the error so downstream automation can surface the problem.
+## Chrome / Lighthouse Tips
 
-## Rolling back codemods
+Lighthouse audits require Chrome/Chromium:
 
-- Because codemods only touch tracked files and are idempotent, a simple `git checkout -- <file>` reverts an individual change.
-- To revert everything, run `git reset --hard` or drop the branch. Always inspect the diff before committing.
+- **Installation**: Ensure Chrome or Chromium is installed and accessible. On macOS: `brew install --cask google-chrome`. On Linux: `apt install chromium-browser`.
+- **Headless Mode**: The CLI uses `chrome-launcher` for headless execution. Set `CHROME_PATH` if the binary is non-standard (e.g., `export CHROME_PATH=/usr/bin/chromium`).
+- **CI/Containers**: Install `chromium` via your package manager. If unavailable, the CLI generates stub reports to flag issues in automation.
+- **Throttling and Flags**: Customize via audit options in [src/audit/lighthouse.ts](https://github.com/your-org/next-speed-kit/blob/main/src/audit/lighthouse.ts), e.g., mobile vs. desktop emulation.
 
-## Continuous integration
+## Rolling Back Codemods
 
-- Use the supplied GitHub Actions workflow (`.github/workflows/ci.yml`) as a template.
-- Typical CI pipeline:
-  1. `pnpm install`
-  2. `pnpm test`
-  3. `pnpm package` (optional artifact upload)
+Reverting is straightforward since changes are file-based and tracked:
 
-## Extending the toolkit
+- **Individual Files**: Use Git to revert:
+  ```bash
+  git checkout -- path/to/file.tsx
+  ```
+- **Full Rollback**: Reset the branch:
+  ```bash
+  git reset --hard HEAD
+  ```
+  Or drop the branch entirely. Always review diffs with `git diff` before committing.
 
-- Add new codemods under `src/codemods/transforms/` and register them in `src/codemods/index.ts`.
-- Bundle analysis currently scans emitted assets; plug in Webpack stats or Lighthouse JSON if you need deeper coverage.
-- For environment-specific audits (mobile vs. desktop, throttling, etc.) adjust the options passed to `runLighthouseAudit` in `src/audit/lighthouse.ts`.
+## Continuous Integration
+
+Integrate next-speed-kit into your CI pipeline for automated perf checks. Use the template in `.github/workflows/ci.yml`.
+
+**Typical Pipeline Steps**:
+
+1. **Install Dependencies**:
+   ```bash
+   pnpm install --frozen-lockfile
+   ```
+
+2. **Run Tests**:
+   ```bash
+   pnpm test
+   ```
+   This covers unit tests for codemods, CLI, and reporting.
+
+3. **Package (Optional)**:
+   ```bash
+   pnpm package
+   ```
+   Upload the ZIP artifact for distribution.
+
+Add steps for `analyse` or `audit` on PRs to enforce performance gates.
+
+## Extending the Toolkit
+
+Customize for your needs:
+
+- **New Codemods**: Add transforms in `src/codemods/transforms/` and register in [src/codemods/index.ts](https://github.com/your-org/next-speed-kit/blob/main/src/codemods/index.ts). Follow patterns like `next-image-dimensions`.
+- **Bundle Analysis**: Enhance scanning of emitted assets; integrate Webpack stats for deeper insights.
+- **Audit Customizations**: Modify `runLighthouseAudit` in [src/audit/lighthouse.ts](https://github.com/your-org/next-speed-kit/blob/main/src/audit/lighthouse.ts) for environment-specific options (e.g., throttling, device emulation).
+
+See [CONTRIBUTING.md](../CONTRIBUTING.md) for development setup.
 
 ## Releasing
 
-To release a new version:
+To publish a new version:
 
-1. Bump the version using pnpm:
+1. **Bump Version**:
    ```bash
-   pnpm version patch  # or minor, major
+   pnpm version patch  # Use minor/major for larger changes
    ```
 
-2. Create and push a git tag:
+2. **Tag and Push**:
    ```bash
    git tag vX.Y.Z
    git push origin main
    git push origin --tags
    ```
 
-This triggers CI to build, test, and package the release.
+This triggers CI builds, tests, and packaging. Update [CHANGELOG.md](../CHANGELOG.md) with details.
 
 ## Packaging
 
-The `pnpm package` script creates a deterministic ZIP archive at `dist/next-speed-kit-YYYY-MM-DD.zip`:
+The `pnpm package` script generates a reproducible ZIP:
 
-- Uses UTC date for the filename.
-- Ensures stable file order for reproducible archives.
-- Includes sources, docs, and the compiled CLI (`dist/`).
-
-Run it manually or in CI for distribution.
+- Filename: `dist/next-speed-kit-YYYY-MM-DD.zip` (UTC date).
+- Contents: Sources, docs, compiled CLI (`dist/`), and example app.
+- Usage: Run manually or in CI for sharing binaries without npm.
 
 ## Report Artifacts
 
-- **CI Uploads**: The ZIP from `pnpm package` is uploaded as a release artifact in CI workflows.
-- **Lighthouse Reports**: Generated HTML/JSON files in `reports/` for audit evidence. Use `reports/summary.md` for aggregated score deltas and insights.
-
-Store these in your evidence repository or artifact store for stakeholder reviews.
+- **CI Uploads**: The package ZIP is attached to releases via GitHub Actions.
+- **Lighthouse Reports**: HTML/JSON files in `reports/` provide audit evidence. Use `reports/summary.md` for score comparisons (e.g., "Performance improved by 25 points").
+- **Storage**: Commit to your repo or use tools like GitHub Artifacts/S3 for stakeholder reviews.
 
 ## Rotate Secrets
 
-- No secrets are stored in the repo (e.g., avoid committing API keys).
-- If using a private `API_BASE`:
-  1. Update the environment variable in your deployment platform (e.g., Vercel env vars).
-  2. Redeploy the application.
-- For local development, use a `.env.local` file (gitignored) and load via `process.env`.
-- In CI, inject secrets via platform-specific mechanisms (e.g., GitHub Secrets).
+next-speed-kit avoids storing secrets in the repo:
+
+- **No Committed Keys**: Never commit API keys or tokens.
+- **Private API_BASE**: Update in your deployment platform (e.g., Vercel env vars) and redeploy.
+- **Local Development**: Use `.env.local` (gitignored) loaded via `process.env`.
+- **CI Injection**: Use platform secrets (e.g., GitHub Secrets) for automated environments.
+
+For issues, reference the [README.md](../README.md) or open a GitHub issue. This guide ensures safe, scalable use of the toolkit's features.
